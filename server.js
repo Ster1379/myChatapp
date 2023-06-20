@@ -1,8 +1,10 @@
 const express = require("express")
 const path = require("path")
 var app = express()
-var server = app.listen(5056, function(){
-    console.log("Listen on port 5056")
+const PORT = process.env.PORT || 5056
+
+var server = app.listen(PORT, function(){
+    console.log(`Listen on port ${PORT}`)
 })
 
 const io = require("socket.io")(server)
