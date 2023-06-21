@@ -22,10 +22,13 @@ io.on("connection",(socket)=>{
             meeting_id: data.meetingid,
         })
 
+        let userCount = userConnections.length
+
         other_users.forEach((v) => {
             socket.to(v.connectionId).emit("inform_others_about_me", {
                 other_user_id: data.displayName,
                 connId: socket.id,
+                userNumber: userCount
             })
         })
 
@@ -39,6 +42,23 @@ io.on("connection",(socket)=>{
         })
     })
 
+    socket.on("sendMessage", (msg) => {
+        console.log(msg)
+        let mUser = userConnections.find((p) => p.connectionId === socket.id)
+        if(mUser){
+            let meetingid = mUser.meeting_id
+            let from = mUser.user_id
+            let list = userConnections.filter((p) => p.meeting_id === meetingid)
+            list.forEach((v) => {
+                socket.to(v.connectionId).emit("showChatMessage", {
+                    from: from,
+                    message: msg
+                }  
+                )
+            })
+        }
+    })
+
     socket.on("disconnect", function(){
         console.log('User disconnected')
         let disUser = userConnections.find((p) => p.connectionId === socket.id)
@@ -47,8 +67,10 @@ io.on("connection",(socket)=>{
             userConnections = userConnections.filter((p) => p.connectionId !== socket.id)
             let list = userConnections.filter((p) => p.meeting_id === meetingid)
             list.forEach((v) => {
+                let userNumberAfUserLeaver = userConnections.length
                 socket.to(v.connectionId).emit("inform_other_about_disconnected_user",{
                     connId: socket.id,
+                    uNumber: userNumberAfUserLeaver
                 })
             })
         }
