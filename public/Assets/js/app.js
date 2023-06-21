@@ -188,7 +188,7 @@ var AppProcess = (function(){
 
     async function setConnection(connid){
         var connection = new RTCPeerConnection(iceConfiguration)
-         console.log("function set connection", connection)
+         //console.log("function set connection", connection)
          connection.onnegotiationneeded = async function(event) {
             await setOffer(connid)
         }
@@ -251,7 +251,7 @@ var AppProcess = (function(){
 
     async function SDPProcess(message, from_connid){
         message = JSON.parse(message)
-        console.log("SDP Process function", message)
+        console.log("SDP Process function", typeof message, message, from_connid)
         if(message.answer){
             await peers_connection[from_connid].setRemoteDescription(new RTCSessionDescription(message.answer))
 
@@ -330,7 +330,7 @@ var MyApp = (function () {
             socket = io.connect()
 
             var SDP_function = function(data, to_connid){
-                console.log("SDP PRocess called")
+                //console.log("SDP PRocess called", data, to_connid)
                 socket.emit("SDPProcess", {
                     message: data,
                     to_connid: to_connid,
