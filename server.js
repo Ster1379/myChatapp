@@ -15,13 +15,14 @@ io.on("connection",(socket)=>{
     console.log('socket id is: ', socket.id)
     socket.on("userconnect", (data) =>{
         //console.log("userconnect ", data.displayName, data.meetingid)
-        var other_users = userConnections.filter((p) => p.meeting_id === data.meetingid)
+        let other_users = userConnections.filter((p) => p.meeting_id === data.meetingid)
         userConnections.push({
             connectionId: socket.id,
             user_id: data.displayName,
             meeting_id: data.meetingid,
         })
-
+        //console.log("user connection array", userConnections)
+        //console.log("other users", other_users)
         let userCount = userConnections.length
 
         other_users.forEach((v) => {
@@ -30,6 +31,7 @@ io.on("connection",(socket)=>{
                 connId: socket.id,
                 userNumber: userCount
             })
+           
         })
 
         socket.emit("inform_me_about_other_user", other_users)
