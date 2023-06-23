@@ -2,7 +2,8 @@ const express = require("express")
 const path = require("path")
 var app = express()
 const PORT = process.env.PORT || 5056
-
+const fs = require('fs')
+const fileUpload = require("express-fileupload")
 var server = app.listen(PORT, function(){
     console.log(`Listen on port ${PORT}`)
 })
@@ -21,8 +22,7 @@ io.on("connection",(socket)=>{
             user_id: data.displayName,
             meeting_id: data.meetingid,
         })
-        //console.log("user connection array", userConnections)
-        //console.log("other users", other_users)
+        
         let userCount = userConnections.length
 
         other_users.forEach((v) => {
@@ -61,6 +61,26 @@ io.on("connection",(socket)=>{
         }
     })
 
+    socket.on("fileTransferToOther", (msg) => {
+        console.log(msg)
+        let mUser = userConnections.find((p) => p.connectionId === socket.id)
+        if(mUser){
+            let meetingid = mUser.meeting_id
+            let from = mUser.user_id
+            let list = userConnections.filter((p) => p.meeting_id === meetingid)
+            list.forEach((v) => {
+                socket.to(v.connectionId).emit("showFileMessage", {
+                    username: msg.username,
+                    meetingis: msg.meetingid,
+                    filePath: msg.filePath, 
+                    fileName: msg.fileName, 
+                }  
+                )
+            })
+        }
+    })
+
+
     socket.on("disconnect", function(){
         console.log('User disconnected')
         let disUser = userConnections.find((p) => p.connectionId === socket.id)
@@ -76,5 +96,26 @@ io.on("connection",(socket)=>{
                 })
             })
         }
+    })
+})
+
+app.use(fileUpload())
+
+app.post("/attachimg", function(req, res){
+    let data = req.body
+    let imageFile = req.files.zipfile
+    console.log("file being transferred", imageFile)
+    let dir = "public/attachment/"+data.meeting_id+"/"
+    if(!fs.existsSync(dir)){
+        fs.mkdirSync(dir)
+    }
+
+    imageFile.mv("public/attachment/"+data.meeting_id+"/"+imageFile.name, function(error){
+        if(error){
+            console.log("can't upload file, error: ", error)
+        } else {
+            console.log("image file successfully uploaded")
+        }
+
     })
 })
