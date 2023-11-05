@@ -10,10 +10,12 @@
   "keywords": [],
   "author": "Bob S",
   "license": "ISC",
-  "engines": {"node": "16.x"},
+  "engines": {
+    "node": "16.x"
+  },
   "dependencies": {
     "express": "^4.18.2",
-    "express-fileupload": "^1.4.0",
+    "express-fileupload": "^1.4.2",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
